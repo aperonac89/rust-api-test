@@ -1,11 +1,37 @@
+mod handlers;
+mod models;
 mod routes;
 
 use actix_cors::Cors;
-use actix_web::{http::header, middleware::Logger, App, HttpServer};
+use actix_web::{http::header, middleware::Logger, web, App, HttpServer};
+use dotenv::dotenv;
+use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
+
+pub struct AppState {
+    db: Pool<Postgres>,
+}
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     env_logger::init();
+    dotenv().ok();
+
+    let database_url = std::env::var("DATABASE_URL").expect("error: not possible to load db url");
+    let pool: Pool<Postgres> = match PgPoolOptions::new()
+        .max_connections(30)
+        .connect(&database_url)
+        .await
+    {
+        Ok(pool) => {
+            println!("connection to the DB completed successfully");
+            pool
+        }
+        Err(e) => {
+            let msg = format!("error: couldnt connect to the db: {}", e);
+            println!("{}", msg);
+            std::process::exit(1);
+        }
+    };
 
     // Staring the server
     HttpServer::new(move || {
@@ -19,9 +45,11 @@ async fn main() -> std::io::Result<()> {
             ])
             .supports_credentials();
         App::new()
-        .wrap(cors)
-        .wrap(Logger::default())
-        .configure(routes::routes::config)
+            .app_data(web::Data::new(AppState { db: pool.clone() }))
+            .wrap(cors)
+            .wrap(Logger::default())
+            .configure(routes::health::config)
+            .configure(routes::notes::config)
     })
     .bind(("127.0.0.1", 3000))?
     .run()
