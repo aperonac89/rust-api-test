@@ -2,7 +2,7 @@ use crate::{
     models::notes::{CreateNoteSchema, FilterOptions, NotesModel, UpdateNoteSchema},
     AppState,
 };
-use actix_web::{delete, get, post, put, web, HttpResponse};
+use actix_web::{delete, get, patch, post, web, HttpResponse};
 use serde_json::json;
 
 #[get("/notes")]
@@ -91,7 +91,7 @@ pub async fn get_note_by_id(
     }
 }
 
-#[put("/note/{id}")]
+#[patch("/note/{id}")]
 pub async fn update_note(
     path: web::Path<uuid::Uuid>,
     body: web::Json<UpdateNoteSchema>,
@@ -137,17 +137,17 @@ pub async fn update_note(
 }
 
 #[delete("/notes/{id}")]
-pub async fn delete_note(path: web::Path<uuid::Uuid>, data: web::Data<AppState>,) -> HttpResponse {
+async fn delete_note(path: web::Path<uuid::Uuid>, data: web::Data<AppState>) -> HttpResponse {
     let note_id = path.into_inner();
-    let rows_affected = sqlx::query_as!(NotesModel, "DELETE FROM notes WHERE id = $1", note_id)
+    let rows_affected = sqlx::query!("DELETE FROM notes  WHERE id = $1", note_id)
         .execute(&data.db)
         .await
         .unwrap()
         .rows_affected();
 
     if rows_affected == 0 {
-        let message = format!("error: not found note with id {}", note_id);
-        return HttpResponse::NotFound().json(json!({"status": "fail", "message": message}));
+        let message = format!("Note with ID: {} not found", note_id);
+        return HttpResponse::NotFound().json(json!({"status": "fail","message": message}));
     }
 
     HttpResponse::NoContent().finish()

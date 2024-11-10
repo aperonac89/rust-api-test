@@ -3,8 +3,7 @@ use chrono::Utc;
 use serde_json::json;
 
 pub fn config(conf: &mut web::ServiceConfig) {
-    let scope = web::scope("").service(health);
-    conf.service(scope);
+    conf.service(health);
 }
 
 #[get("/health")]

@@ -49,8 +49,8 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(AppState { db: pool.clone() }))
             .wrap(cors)
             .wrap(Logger::default())
-            .configure(health::config)
             .configure(notes::config)
+            .configure(health::config)
     })
     .bind(("127.0.0.1", 3000))?
     .run()
