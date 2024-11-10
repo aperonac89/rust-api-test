@@ -1,5 +1,3 @@
-use crate::handlers::handlers::{create_note,get_notes};
-use actix_web::web;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use uuid::Uuid;

@@ -2,6 +2,7 @@ mod handlers;
 mod models;
 mod routes;
 
+use crate::routes::{health, notes};
 use actix_cors::Cors;
 use actix_web::{http::header, middleware::Logger, web, App, HttpServer};
 use dotenv::dotenv;
@@ -48,8 +49,8 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(AppState { db: pool.clone() }))
             .wrap(cors)
             .wrap(Logger::default())
-            .configure(routes::health::config)
-            .configure(routes::notes::config)
+            .configure(health::config)
+            .configure(notes::config)
     })
     .bind(("127.0.0.1", 3000))?
     .run()

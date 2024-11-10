@@ -1,1 +1,1 @@
-pub mod handlers;
+pub mod notes_handlers;

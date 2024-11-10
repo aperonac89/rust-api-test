@@ -7,5 +7,8 @@ prepare_project:
 	cargo add chrono --features serde
 	cargo add dotenv
 
+migrate_up:
+	sqlx migrate run
+
 run:
 	RUST_LOG=main=debug cargo watch -x run
