@@ -71,7 +71,7 @@ pub async fn create_note(
 
 #[get("/notes/{id}")]
 pub async fn get_note_by_id(
-    path: web::Query<uuid::Uuid>,
+    path: web::Path<uuid::Uuid>,
     data: web::Data<AppState>,
 ) -> HttpResponse {
     let note_id = path.into_inner();
@@ -91,7 +91,7 @@ pub async fn get_note_by_id(
     }
 }
 
-#[patch("/note/{id}")]
+#[patch("/notes/{id}")]
 pub async fn update_note(
     path: web::Path<uuid::Uuid>,
     body: web::Json<UpdateNoteSchema>,
